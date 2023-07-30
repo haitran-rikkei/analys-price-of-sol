@@ -7,6 +7,8 @@ class SendCrawlerDataToS3
 
   def call
     data = get_prices_chart
+    return if data.blank?
+
     convert_to_csv(data.slice(*available_keys))
     upload_file
   end
@@ -19,7 +21,7 @@ class SendCrawlerDataToS3
     http.use_ssl = true
     request = Net::HTTP::Get.new(price_chart_api_url, {'Content-Type' => 'application/json'})
     response = http.request(request)
-    JSON.parse(response.body)
+    JSON.parse(response.body) if response.code == '200'
   end
 
   def price_chart_api_url
